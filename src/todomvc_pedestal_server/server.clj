@@ -1,7 +1,8 @@
 (ns todomvc-pedestal-server.server
   (:gen-class) ; for -main method in uberjar
   (:require [todomvc-pedestal-server.service :as service]
-            [io.pedestal.service.http :as bootstrap]))
+            [io.pedestal.service.http :as bootstrap]
+            [todomvc-pedestal-server.db :as db]))
 
 (def service-instance
   "Global var to hold service instance."
@@ -31,3 +32,12 @@
 (defn servlet-service [this servlet-req servlet-resp]
   (.service ^javax.servlet.Servlet (::bootstrap/servlet service-instance)
             servlet-req servlet-resp))
+
+(defn start-dev-db []
+  (db/start "datomic:mem://todo-list"))
+
+;;(-main)
+;;(start-dev-db)
+;;(.stop server)
+;;(.start server)
+

@@ -1,0 +1,17 @@
+[
+
+{:db/id #db/id[:db.part/user],
+ :todo/id "1"
+ :todo/title "test 1",
+ :todo/completed false}
+
+{:db/id #db/id[:db.part/user],
+ :todo/id "2"
+ :todo/title "test 2",
+ :todo/completed true}
+
+{:db/id #db/id[:db.part/user],
+ :todo/id "3"
+ :todo/title "test 3",
+ :todo/completed true}
+]

@@ -9,3 +9,7 @@ FIXME
 3. Read your app's source code at src/todomvc_pedestal_server/service.clj. Explore the docs of functions
    that define routes and responses.
 4. Run your app's tests with `lein test`. Read the tests at test/todomvc_pedestal_server/service_test.clj.
+
+
+** TODO
+How to hot deploy changes? (no need to kill lein run)
