@@ -54,4 +54,4 @@
   (let [todos (q '[:find ?t
                      :where [?t :todo/id]]
                    (db @conn))]
-    (map #(get-todo-by-ref (first %)) todos)))
+    (map #(get-todo (first %)) todos)))

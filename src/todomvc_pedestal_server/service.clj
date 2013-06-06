@@ -6,49 +6,49 @@
               [ring.util.response :as ring-resp]
               [todomvc-pedestal-server.models :as m]))
 
-(defn about-page
-  [request]
-  (ring-resp/response (format "Clojure %s" (clojure-version))))
-
 (defn home-page
   [request]
-  (ring-resp/response "To list todos go to /todos!"))
+  (ring-resp/response "To list todos go to http://localhost:8080/todos"))
 
 (defn list-todos [request]
-  (let [todos (m/list-todos)]
-    (bootstrap/edn-response (str "list-todos" todos))))
+  (if-let [todos (m/list-todos)]
+    (bootstrap/edn-response todos)
+    (ring-resp/response (str "errors"))))
 
 (defn create-todo [{:keys [path-params form-params] :as request}]
-  (let [ todo {:id  (get form-params "id" "")
-               :title (get form-params "title" "") 
-               :completed  (Boolean/valueOf (get form-params "completed" "false"))}
+  (let [id (get form-params "id" "") 
+        todo {:id  id
+              :title (get form-params "title" "") 
+              :completed  (Boolean/valueOf (get form-params "completed" "false"))}
         result (m/create-todo todo)]
-    (bootstrap/edn-response (str "get-todo" result)))
-)
+    (if (m/create-todo todo)
+      (bootstrap/edn-response (m/get-todo id))
+      (ring-resp/response (str "error")))))
 
 
 (defn get-todo [{:keys [path-params] :as request}]
-  (let [id (:id path-params)
-        todo (m/get-todo id)]
-    (bootstrap/edn-response todo)))
+  (if-let [todo (m/get-todo (:id path-params))]
+    (bootstrap/edn-response todo)
+    (ring-resp/response (str "not found"))))
 
 (defn update-todo [{:keys [path-params form-params] :as request}]
   (let [id (:id path-params)
         todo {:id id
               :title (get form-params "title" "")
               :completed (Boolean/valueOf (get form-params "completed" "false"))}]
-    (bootstrap/edn-response (str "update-todo" (m/update-todo todo)))))
+    (if (m/update-todo todo)
+      (bootstrap/edn-response (m/get-todo id))
+      (ring-resp/response (str "not found")))))
 
 (defn delete-todo [{:keys [path-params] :as request}]
-  (let [id (:id path-params)
-        todo (m/delete-todo id)]
-    (bootstrap/edn-response (str "delete-todo" todo))))
+  (if-let [todo (m/delete-todo (:id path-params))]
+    (bootstrap/edn-response "deleted")
+    (ring-resp/response (str "error"))))
 
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /
      ^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/about" {:get about-page}]
      ["/todos" {:get list-todos :post create-todo}]
      ["/todos/:id" {:get get-todo 
                     :put update-todo 
