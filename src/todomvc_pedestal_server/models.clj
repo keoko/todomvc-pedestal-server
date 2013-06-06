@@ -15,19 +15,27 @@
                      :todo/title title
                      :todo/completed completed}]))
 
+(defn get-todo-map [todo]
+  {:id (:todo/id todo)
+   :title (:todo/title todo)
+   :completed (:todo/completed todo)})
+
+
+(defmulti get-todo
+  "get todo map by todo identifier, datomic id ref, etc."
+  (fn [id] (class id)))
+
 ;; todo: use multimethods by class (string then 1, else 2)
-(defn get-todo [id]
+(defmethod get-todo java.lang.String
+  [id]
   (when-let [todo (d/entity (db @conn) (get-todo-ref id))]
-    {:id (:todo/id todo)
-     :title (:todo/title todo)
-     :completed (:todo/completed todo)}))
+    (get-todo-map todo)))
 
 
-(defn get-todo-by-ref [ref]
+(defmethod get-todo :default
+  [ref]
   (when-let [todo (d/entity (db @conn) ref)]
-    {:id (:todo/id todo)
-     :title (:todo/title todo)
-     :completed (:todo/completed todo)}))
+    (get-todo-map todo)))
 
 
 (defn update-todo [{:keys [id title completed] :as todo}]
